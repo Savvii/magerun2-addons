@@ -151,7 +151,7 @@ class PagespeedRows extends AbstractRow
             } else {
                 array_push($result, array(
                     $title . ' Lighthouse peformance score',
-                    $decodedOutput['lighthousePerformanceScore'] , 0.8 ? $this->formatStatus('STATUS_PROBLEM') : $this->formatStatus('STATUS_OK'),
+                    $decodedOutput['lighthousePerformanceScore'] < 0.8 ? $this->formatStatus('STATUS_PROBLEM') : $this->formatStatus('STATUS_OK'),
                     $decodedOutput['lighthousePerformanceScore'] * 100 . ' %',
                     '>=80%'
                 ));
