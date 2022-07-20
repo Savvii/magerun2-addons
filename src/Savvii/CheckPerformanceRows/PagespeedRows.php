@@ -146,14 +146,14 @@ class PagespeedRows extends AbstractRow
                     $title . ' Lighthouse performance score',
                     $this->formatStatus('STATUS_UNKNOWN'),
                     'Could not load the URL',
-                    '< 80%'
+                    '> 80%'
                 ));
             } else {
                 array_push($result, array(
                     $title . ' Lighthouse peformance score',
                     $decodedOutput['lighthousePerformanceScore'] > 0.8 ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'),
                     $decodedOutput['lighthousePerformanceScore'] * 100 . ' %',
-                    '< 80 %'
+                    '> 80 %'
                 ));
             }
         }

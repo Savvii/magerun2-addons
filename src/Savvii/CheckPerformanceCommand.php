@@ -22,6 +22,7 @@ use Savvii\CheckPerformanceRows\PagespeedRows;
 use Savvii\CheckPerformanceRows\MySQLTableSizeRows;
 use Savvii\CheckPerformanceRows\RocketLoaderRow;
 use Savvii\CheckPerformanceRows\MySQLConfigRow;
+use Savvii\CheckPerformanceRows\IndexerThreadsCountRow;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -77,6 +78,8 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
 
     protected $mySQLConfigRow;
 
+    protected $indexerThreadsCountRow;
+
     /**
      * @param PHPVersionRow $phpVersionRow 
      * @param PHPConfigRow $phpConfigRow 
@@ -116,7 +119,8 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         PagespeedRows $pagespeedRows,
         MySQLTableSizeRows $mySQLTableSizeRows,
         RocketLoaderRow $rocketLoaderRow,
-        MySQLConfigRow $mySQLConfigRow
+        MySQLConfigRow $mySQLConfigRow,
+        IndexerThreadsCountRow $indexerThreadsCountRow,
     ) {
         $this->phpVersionRow = $phpVersionRow;
         $this->phpConfigRow = $phpConfigRow;
@@ -137,6 +141,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         $this->mySQLTableSizeRows = $mySQLTableSizeRows;
         $this->rocketLoaderRow = $rocketLoaderRow;
         $this->mySQLConfigRow = $mySQLConfigRow;
+        $this->indexerThreadsCountRow = $indexerThreadsCountRow;
     }
 
 
@@ -213,6 +218,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         }
         array_push($table, $this->asyncEmailRow->setInputFormat($inputFormat)->getRow());
         array_push($table, $this->asyncIndexingRow->setInputFormat($inputFormat)->getRow());
+        array_push($table, $this->indexerThreadsCountRow->setInputFormat($inputFormat)->getRow());
 
         $table = array_merge($table, $this->minifySettingsRows->setInputFormat($inputFormat)->getRow());
         array_push($table, $this->moveScriptRow->setInputFormat($inputFormat)->getRow());
