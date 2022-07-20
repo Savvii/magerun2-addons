@@ -18,7 +18,7 @@ use Savvii\CheckPerformanceRows\AsyncIndexingRow;
 use Savvii\CheckPerformanceRows\MinifySettingsRows;
 use Savvii\CheckPerformanceRows\VarnishHitrateRow;
 use Savvii\CheckPerformanceRows\MoveScriptRow;
-use Savvii\CheckPerformanceRows\LoadtimesRows;
+use Savvii\CheckPerformanceRows\PagespeedRows;
 use Savvii\CheckPerformanceRows\MySQLTableSizeRows;
 use Savvii\CheckPerformanceRows\RocketLoaderRow;
 use Savvii\CheckPerformanceRows\MySQLConfigRow;
@@ -67,7 +67,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
 
     protected $moveScriptRow;
 
-    protected $loadtimesRows;
+    protected $pagespeedRows;
 
     protected $rocketLoaderRow;
 
@@ -93,7 +93,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
      * @param VarnishHitrateRow $varnishHitrateRow 
      * @param MoveScriptRow $moveScriptRow 
      * @param ConfigCollection $configCollection 
-     * @param LoadtimesRows $loadtimesRows 
+     * @param PagespeedRows $pagespeedRows 
      * 
      * @return void 
      */
@@ -113,7 +113,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         VarnishHitrateRow $varnishHitrateRow,
         MoveScriptRow $moveScriptRow,
         ConfigCollection $configCollection,
-        LoadtimesRows $loadtimesRows,
+        PagespeedRows $pagespeedRows,
         MySQLTableSizeRows $mySQLTableSizeRows,
         RocketLoaderRow $rocketLoaderRow,
         MySQLConfigRow $mySQLConfigRow
@@ -133,7 +133,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         $this->varnishHitrateRow = $varnishHitrateRow;
         $this->configCollection = $configCollection;
         $this->moveScriptRow = $moveScriptRow;
-        $this->loadtimesRows = $loadtimesRows;
+        $this->pagespeedRows = $pagespeedRows;
         $this->mySQLTableSizeRows = $mySQLTableSizeRows;
         $this->rocketLoaderRow = $rocketLoaderRow;
         $this->mySQLConfigRow = $mySQLConfigRow;
@@ -216,7 +216,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
 
         $table = array_merge($table, $this->minifySettingsRows->setInputFormat($inputFormat)->getRow());
         array_push($table, $this->moveScriptRow->setInputFormat($inputFormat)->getRow());
-        $table = array_merge($table, $this->loadtimesRows->setInputFormat($inputFormat)->getRow());
+        $table = array_merge($table, $this->pagespeedRows->setInputFormat($inputFormat)->getRow());
         $table = array_merge($table, $this->mySQLTableSizeRows->setInputFormat($inputFormat)->getRow());
         array_push($table, $this->rocketLoaderRow->setInputFormat($inputFormat)->getRow());
 

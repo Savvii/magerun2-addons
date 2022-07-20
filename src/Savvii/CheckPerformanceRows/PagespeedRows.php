@@ -10,11 +10,11 @@ use Magento\Catalog\Model\Product\Attribute\Source\Status as ProductStatus;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 
 /**
- * Class LoadtimesRows 
+ * Class PagespeedRows 
  * 
  * @package Savvii\CheckPerformanceRows
  */
-class LoadtimesRows extends AbstractRow
+class PagespeedRows extends AbstractRow
 {
     protected $storeManager;
 
@@ -124,6 +124,7 @@ class LoadtimesRows extends AbstractRow
             }
 
             $decodedOutput = json_decode($output, true);
+
             if (!array_key_exists('observedLoad', $decodedOutput)) {
                 array_push($result, array(
                     $title . ' (' . $url . ')',
@@ -131,15 +132,30 @@ class LoadtimesRows extends AbstractRow
                     'Could not load the URL',
                     '< 2000 ms'
                 ));
-                continue;
+            } else {
+                array_push($result, array(
+                    $title . ' (' . $url . ')',
+                    $decodedOutput['observedLoad'] < 2000 ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'),
+                    $decodedOutput['observedLoad'] . ' ms',
+                    '< 2000 ms'
+                ));
             }
 
-            array_push($result, array(
-                $title . ' (' . $url . ')',
-                $decodedOutput['observedLoad'] < 2000 ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'),
-                $decodedOutput['observedLoad'] . ' ms',
-                '< 2000 ms'
-            ));
+            if(!array_key_exists('lighthousePerformanceScore', $decodedOutput) || !$decodedOutput['lighthousePerformanceScore']) {
+                array_push($result, array(
+                    $title . ' Lighthouse performance score',
+                    $this->formatStatus('STATUS_UNKNOWN'),
+                    'Could not load the URL',
+                    '< 80%'
+                ));
+            } else {
+                array_push($result, array(
+                    $title . ' Lighthouse peformance score',
+                    $decodedOutput['lighthousePerformanceScore'] > 0.8 ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'),
+                    $decodedOutput['lighthousePerformanceScore'] * 100 . ' %',
+                    '< 80 %'
+                ));
+            }
         }
 
         return $result;
