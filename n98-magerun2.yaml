@@ -1,0 +1,9 @@
+autoloaders:
+    Savvii: %module%/src
+
+commands:
+    customCommands:
+        - Savvii\CheckPerformanceCommand
+        - Savvii\HelloWorldCommand
+        - Savvii\LockAdminCommand
+        - Savvii\UnlockAdminCommand
