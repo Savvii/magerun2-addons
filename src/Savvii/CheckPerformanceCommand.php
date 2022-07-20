@@ -120,7 +120,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         MySQLTableSizeRows $mySQLTableSizeRows,
         RocketLoaderRow $rocketLoaderRow,
         MySQLConfigRow $mySQLConfigRow,
-        IndexerThreadsCountRow $indexerThreadsCountRow,
+        IndexerThreadsCountRow $indexerThreadsCountRow
     ) {
         $this->phpVersionRow = $phpVersionRow;
         $this->phpConfigRow = $phpConfigRow;
