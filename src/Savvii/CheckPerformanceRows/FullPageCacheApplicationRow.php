@@ -3,7 +3,9 @@
 namespace Savvii\CheckPerformanceRows;
 
 use Magento\PageCache\Model\Config as CacheConfig;
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 
 /**
  * Class FullPageCacheApplicationRow 
@@ -13,13 +15,15 @@ use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollectio
 class FullPageCacheApplicationRow extends AbstractRow
 {
     /**
-     * @param ConfigCollection $configCollection 
+     * @param ScopeConfigInterface $scopeConfig 
+     * @param StoreManagerInterface $storeManager 
      * 
      * @return void 
      */
-    public function __construct(ConfigCollection $configCollection)
+    public function __construct(ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager)
     {
-        $this->configCollection = $configCollection;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -28,23 +32,22 @@ class FullPageCacheApplicationRow extends AbstractRow
      */
     public function getRow()
     {
-        $cachingApplication = $this->getConfigValuesByPath(
-            'system/full_page_cache/caching_application'
-        );
-
-        $status = $this->formatStatus('STATUS_OK');
-        $message = 'Varnish Cache';
-
-        if (!in_array(CacheConfig::VARNISH, $cachingApplication)) {
-            $status = $this->formatStatus('STATUS_PROBLEM');
-            $message = 'Built in';
+        $mapping = [CacheConfig::VARNISH => 'Varnish', CacheConfig::BUILT_IN => 'Built in'];
+        $wrongConfigValues = $this->getWrongConfigValues('system/full_page_cache/caching_application', CacheConfig::VARNISH, $mapping);
+        if (count($wrongConfigValues) > 0) {
+            return array(
+                'Full Page Cache',
+                $this->formatStatus('STATUS_PROBLEM'),
+                implode("\n", $wrongConfigValues),
+                'Varnish'
+            );
         }
 
         return array(
             'Full Page Cache',
-            $status,
-            $message,
-            'Varnish Cache',
+            $this->formatStatus('STATUS_OK'),
+            'All stores have value "Varnish"',
+            'Varnish'
         );
     }
 }

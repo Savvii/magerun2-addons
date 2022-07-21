@@ -30,16 +30,16 @@ class IndexerThreadsCountRow extends AbstractRow
     public function getRow()
     {
         $status = $this->formatStatus('STATUS_OK');
-        $threadsCount = getenv('MAGE_INDEXER_THREADS_COUNT');
+        $threadsCount = $this->deploymentConfig->get('MAGE_INDEXER_THREADS_COUNT');
         if(!$threadsCount) {
-            $threadsCount = $this->deploymentConfig->get('MAGE_INDEXER_THREADS_COUNT');
+            $threadsCount = getenv('MAGE_INDEXER_THREADS_COUNT');
         }
         if ($threadsCount < 2) {
             $status = $this->formatStatus('STATUS_PROBLEM');
         }
 
         return array(
-            'Indexer threads count',
+            'Indexer Threads Count',
             $status,
             $threadsCount ? $threadsCount : 0,
             '>=2'

@@ -57,7 +57,7 @@ class PHPConfigRow extends AbstractRow
         }
 
         return array(
-            'PHP configuration',
+            'PHP Configuration',
             $status,
             trim($current),
             trim($recommended),

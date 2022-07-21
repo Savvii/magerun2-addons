@@ -108,6 +108,6 @@ class HttpVersionRow extends AbstractRow
             }
         }
 
-        return array('HTTP version', $status, $finalVersion, '>= 2');
+        return array('HTTP Version', $status, $finalVersion, '>= 2');
     }
 }

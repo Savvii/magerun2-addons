@@ -60,7 +60,7 @@ class PHPVersionRow extends AbstractRow
         $phpVersionSplit = explode('-', PHP_VERSION, 2);
         $showVersion = reset($phpVersionSplit);
         return array(
-            'PHP version',
+            'PHP Version',
             $versionCompare
                 ? $this->formatStatus('STATUS_OK')
                 : $this->formatStatus(

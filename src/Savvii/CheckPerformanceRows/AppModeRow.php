@@ -32,7 +32,7 @@ class AppModeRow extends AbstractRow
         $appMode = $this->appState->getMode();
 
         return array(
-            'Magento mode',
+            'Magento Mode',
             $appMode == State::MODE_PRODUCTION ? $this->formatStatus('STATUS_OK')
                 : $this->formatStatus('STATUS_PROBLEM'),
             $appMode,

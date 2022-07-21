@@ -141,16 +141,16 @@ class PagespeedRows extends AbstractRow
                 ));
             }
 
-            if(!array_key_exists('lighthousePerformanceScore', $decodedOutput) || !$decodedOutput['lighthousePerformanceScore']) {
+            if (!array_key_exists('lighthousePerformanceScore', $decodedOutput) || !$decodedOutput['lighthousePerformanceScore']) {
                 array_push($result, array(
-                    $title . ' Lighthouse performance score',
+                    $title . ' Lighthouse Performance Score',
                     $this->formatStatus('STATUS_UNKNOWN'),
                     'Could not load the URL',
                     '> 80%'
                 ));
             } else {
                 array_push($result, array(
-                    $title . ' Lighthouse performance score',
+                    $title . ' Lighthouse Performance Score',
                     $decodedOutput['lighthousePerformanceScore'] < 0.8 ? $this->formatStatus('STATUS_PROBLEM') : $this->formatStatus('STATUS_OK'),
                     $decodedOutput['lighthousePerformanceScore'] * 100 . ' %',
                     '>=80%'

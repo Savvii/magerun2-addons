@@ -2,8 +2,9 @@
 
 namespace Savvii\CheckPerformanceRows;
 
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollection;
 use Magento\Indexer\Model\Indexer\Collection as IndexerCollection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class AsyncIndexingRow 
@@ -15,13 +16,16 @@ class AsyncIndexingRow extends AbstractRow
     protected $indexerCollection;
 
     /**
-     * @param ConfigCollection $configCollection 
+     * @param ScopeConfigInterface $scopeConfig 
+     * @param StoreManagerInterface $storeManager 
+     * @param IndexerCollection $indexerCollection 
      * 
      * @return void 
      */
-    public function __construct(ConfigCollection $configCollection, IndexerCollection $indexerCollection)
+    public function __construct(ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager, IndexerCollection $indexerCollection)
     {
-        $this->configCollection = $configCollection;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
         $this->indexerCollection = $indexerCollection;
     }
 
@@ -30,29 +34,29 @@ class AsyncIndexingRow extends AbstractRow
      */
     public function getRow()
     {
-        $status = $this->formatStatus('STATUS_OK');
-        $cachingApplication = $this->getConfigValuesByPath('dev/grid/async_indexing');
-        if (!$cachingApplication || !in_array(true, $cachingApplication)) {
+        $mapping = [0 => 'Disabled', 1 => 'Enabled'];
+        $wrongConfigValues = $this->getWrongConfigValues('dev/grid/async_indexing', 1, $mapping);
+        if (count($wrongConfigValues) > 0) {
             return array(
                 'Asynchronous Indexing',
                 $this->formatStatus('STATUS_PROBLEM'),
-                'Disabled',
-                'Enabled'
+                implode("\n", $wrongConfigValues),
+                'All indexers async'
             );
         }
 
         $disabledIndexersMessage = '';
         foreach ($this->indexerCollection->getItems() as $indexer) {
             if (!$indexer->isScheduled()) {
-                $disabledIndexersMessage .= $indexer->getTitle() . ' Index is set to \'Update on Save\'' . "\n";
+                $disabledIndexersMessage .= $indexer->getTitle() . ' Index mode is not "Scheduled"' . "\n";
             }
         }
 
         return array(
             'Asynchronous Indexing',
             ($disabledIndexersMessage == '' ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM')),
-            ($disabledIndexersMessage == '' ? 'Enabled' : $disabledIndexersMessage),
-            'Enabled'
+            ($disabledIndexersMessage == '' ? 'All stores have value "Enabled"' : $disabledIndexersMessage),
+            'All indexers have mode "scheduled"'
         );
     }
 }

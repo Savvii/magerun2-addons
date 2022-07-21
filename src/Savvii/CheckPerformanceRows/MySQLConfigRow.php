@@ -64,7 +64,7 @@ class MySQLConfigRow extends AbstractRow
         });
 
         return array(
-            'MySQL configuration',
+            'MySQL Configuration',
             $ok ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'),
             implode("\n", $result),
             implode("\n", $defaultValues)

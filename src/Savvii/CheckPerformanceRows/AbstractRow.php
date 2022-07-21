@@ -12,7 +12,9 @@ abstract class AbstractRow
 
     protected $format;
 
-    protected $configCollection;
+    protected $storeManager;
+
+    protected $scopeConfig;
 
     /**
      * @param mixed $format 
@@ -57,17 +59,44 @@ abstract class AbstractRow
         }
     }
 
+    protected function getConfigValuesByPath($path)
+    {
+        $result = [];
+        if ($this->storeManager && $this->scopeConfig) {
+            $stores = $this->storeManager->getStores();
+            foreach ($stores as $store) {
+                $result[] = $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store->getCode());
+            }
+        }
+        return $result;
+    }
+
     /**
      * @param $path
      *
      * @return mixed
      */
-    protected function getConfigValuesByPath($path)
+    protected function getWrongConfigValues($path, $recommended, $mapping)
     {
-        $this->configCollection->clear()->getSelect()->reset(\Zend_Db_Select::WHERE);
-
-        return $this->configCollection->addFieldToFilter('path', $path)->addFieldToSelect('value')
-            ->getColumnValues('value');
+        $result = [];
+        if ($this->storeManager && $this->scopeConfig) {
+            $stores = $this->storeManager->getStores();
+            $allStoresFail = true;
+            foreach ($stores as $store) {
+                $configValue = $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store->getCode());
+                if ($configValue != $recommended) {
+                    $result[] = 'Store ' . $store->getId() . ' has value "' . $mapping[$configValue] . '"';
+                } else {
+                    $allStoresFail = false;
+                }
+            }
+            if ($allStoresFail) {
+                $result = ['All stores have value "' . $mapping[$configValue] . '"'];
+            }
+        } else {
+            $result = ['Unable to initialize'];
+        }
+        return $result;
     }
 
     /**

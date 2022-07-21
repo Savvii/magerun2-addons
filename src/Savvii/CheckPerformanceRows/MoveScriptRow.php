@@ -2,18 +2,21 @@
 
 namespace Savvii\CheckPerformanceRows;
 
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class MoveScriptRow extends AbstractRow
 {
     /**
-     * @param ConfigCollection $configCollection 
+     * @param ScopeConfigInterface $scopeConfig 
+     * @param StoreManagerInterface $storeManager 
      * 
      * @return void 
      */
-    public function __construct(ConfigCollection $configCollection)
+    public function __construct(ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager)
     {
-        $this->configCollection = $configCollection;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -21,18 +24,23 @@ class MoveScriptRow extends AbstractRow
      */
     public function getRow()
     {
-        $status = $this->formatStatus('STATUS_OK');
-        $message = 'Enabled';
-        $moveScriptToBottom = $this->getConfigValuesByPath('dev/js/move_script_to_bottom');
-        if (!$moveScriptToBottom || !in_array(true, $moveScriptToBottom)) {
-            $status = $this->formatStatus('STATUS_PROBLEM');
-            $message = 'Disabled';
+        $mapping = [0 => 'Disabled', 1 => 'Enabled'];
+        $wrongConfigValues = $this->getWrongConfigValues('dev/js/move_script_to_bottom', 1, $mapping);
+
+        if (count($wrongConfigValues) > 0) {
+            return array(
+                'Move Script To Bottom',
+                $this->formatStatus('STATUS_PROBLEM'),
+                implode("\n", $wrongConfigValues),
+                'Enabled'
+            );
         }
 
+
         return array(
-            'Move script to bottom',
-            $status,
-            $message,
+            'Move Script To Bottom',
+            $this->formatStatus('STATUS_OK'),
+            'All stores have value "Enabled"',
             'Enabled'
         );
     }

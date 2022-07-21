@@ -18,7 +18,7 @@ class ComposerAutoloaderRow extends AbstractRow
      */
     public function getRow()
     {
-        $title = 'Composer autoloader';
+        $title = 'Composer Autoloader';
         $recommended = 'Optimized autoloader (composer dump-autoload -o --apcu)';
         $status = $this->formatStatus('STATUS_OK');
         $current = 'Composer\'s autoloader is optimized';
@@ -43,7 +43,7 @@ class ComposerAutoloaderRow extends AbstractRow
             $classLoader->getClassMap()
         )) {
             $status = $this->formatStatus('STATUS_PROBLEM');
-            $current = 'Composer\'s autoloader is not optimized.';
+            $current = 'Composer\'s autoloader is not optimized';
         }
 
         return array($title, $status, $current, $recommended);

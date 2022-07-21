@@ -2,7 +2,7 @@
 
 namespace Savvii\CheckPerformanceRows;
 
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -15,14 +15,14 @@ class MinifySettingsRows extends AbstractRow
     protected $storeManager;
 
     /**
-     * @param ConfigCollection $configCollection 
+     * @param ScopeConfigInterface $scopeConfig 
      * @param StoreManagerInterface $storeManager 
      * 
      * @return void 
      */
-    public function __construct(ConfigCollection $configCollection, StoreManagerInterface $storeManager)
+    public function __construct(ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager)
     {
-        $this->configCollection = $configCollection;
+        $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
     }
 
@@ -31,77 +31,31 @@ class MinifySettingsRows extends AbstractRow
      */
     public function getRow()
     {
+        $results = [];
         $configs = array(
             'js' => array('title' => 'Minify JavaScript Files', 'path' => 'dev/js/minify_files'),
             'css' => array('title' => 'Minify CSS Files', 'path' => 'dev/css/minify_files'),
             'html' => array('title' => 'Minify HTML', 'path' => 'dev/template/minify_html')
         );
+        $mapping = array(0 => 'Disabled', 1 => 'Enabled');
 
-        $result = array();
-        $stores = $this->storeManager->getStores();
-        $valueMapping = array(0 => '"Disabled"', 1 => '"Enabled"');
-
-        foreach ($configs as $key => $config) {
-            $ok = true;
-            $currentResult = array();
-            $this->configCollection->clear()->getSelect()->reset(\Zend_Db_Select::WHERE);
-            $configValues = $this->configCollection->addFieldToFilter('path', $config['path'])->addFieldToSelect(['value', 'scope', 'scope_id'])->toArray();
-            $configPerScope = array();
-            foreach ($configValues['items'] as $item) {
-                $configPerScope[$item['scope']][$item['scope_id']] = $item['value'];
-            }
-            $counter = 0;
-            $firstValue = null;
-            $allStoresHaveSameValue = true;
-            foreach ($stores as $store) {
-                $value = null;
-                if (array_key_exists('stores', $configPerScope) && array_key_exists($store->getId(), $configPerScope['stores'])) {
-                    $value = $configPerScope['stores'][$store->getId()];
-                    if (!$value) {
-                        $ok = false;
-                    }
-
-                    array_push($currentResult, 'Store ' . $store->getName() . ' has value ' . $valueMapping[$configPerScope['stores'][$store->getId()]] . ', scope: store');
-                }
-
-                if (array_key_exists('websites', $configPerScope) && array_key_exists($store->getWebsiteId(), $configPerScope['websites']) && !isset($value)) {
-                    $value = $configPerScope['websites'][$store->getWebsiteId()];
-                    if (!$value) {
-                        $ok = false;
-                    }
-                    array_push($currentResult, 'Store ' . $store->getName() . ' has value ' . $valueMapping[$configPerScope['websites'][$store->getWebsiteId()]] . ', scope: website');
-                }
-
-                if (array_key_exists('default', $configPerScope) && array_key_exists(0, $configPerScope['default']) && !isset($value)) {
-                    $value = $configPerScope['default'][0];
-                    if (!$value) {
-                        $ok = false;
-                    }
-                    array_push($currentResult, 'Store ' . $store->getName() . ' has value ' . $valueMapping[$configPerScope['default'][0]] . ', scope: default');
-                }
-
-                if (!isset($value)) {
-                    $value = 0;
-                    $ok = false;
-                    array_push($currentResult, 'Store ' . $store->getName() . ' has value Disabled, scope: none');
-                }
-
-                if ($counter == 0) {
-                    $firstValue = $value;
-                }
-
-                if ($counter !== 0 && $firstValue !== $value) {
-                    $allStoresHaveSameValue = false;
-                }
+        foreach ($configs as $config) {
+            $message = 'All stores have value "Enabled"';
+            $status = $this->formatStatus('STATUS_OK');
+            $wrongConfigValues = $this->getWrongConfigValues($config['path'], 1, $mapping);
+            if (count($wrongConfigValues) > 0) {
+                $message = implode("\n", $wrongConfigValues);
+                $status = $this->formatStatus('STATUS_PROBLEM');
             }
 
-            if ($allStoresHaveSameValue) {
-                $currentResult = array('All stores have value ' . $valueMapping[$firstValue]);
-            }
-
-            array_push($result, array($config['title'], $ok ? $this->formatStatus('STATUS_OK') : $this->formatStatus('STATUS_PROBLEM'), implode("\n", $currentResult), 'Enabled'));
+            $results[] = [
+                $config['title'],
+                $status,
+                $message,
+                'Enabled'
+            ];
         }
 
-        return $result;
+        return $results;
     }
 }

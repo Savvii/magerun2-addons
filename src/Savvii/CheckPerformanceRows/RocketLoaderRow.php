@@ -42,7 +42,7 @@ class RocketLoaderRow extends AbstractRow
             return array(
                 'RocketLoader (Cloudflare)',
                 $this->formatStatus('STATUS_PROBLEM'),
-                'No rocketloader injection found.',
+                'No rocketloader injection found',
                 'Enabled'
             );
         }

@@ -5,7 +5,9 @@ namespace Savvii\CheckPerformanceRows;
 use LogicException;
 use Magento\Theme\Model\ResourceModel\Theme\Collection as ThemeCollection;
 use Magento\Framework\App\Utility\Files;
-use Magento\Config\Model\ResourceModel\Config\Data\Collection as ConfigCollection;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 use UnexpectedValueException;
 
 /**
@@ -23,15 +25,17 @@ class NonCacheableLayoutsRow extends AbstractRow
     /**
      * @param ThemeCollection $themeCollection 
      * @param Files $files 
-     * @param ConfigCollection $configCollection 
+     * @param ScopeConfigInterface $scopeConfig 
+     * @param StoreManagerInterface $storeManager 
      * 
      * @return void 
      */
-    public function __construct(ThemeCollection $themeCollection, Files $files, ConfigCollection $configCollection)
+    public function __construct(ThemeCollection $themeCollection, Files $files, ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager)
     {
         $this->themeCollection = $themeCollection;
         $this->files = $files;
-        $this->configCollection = $configCollection;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -43,7 +47,14 @@ class NonCacheableLayoutsRow extends AbstractRow
     {
         $elementsToInclude = array('catalog', 'cms');
         $usedThemes = $this->getConfigValuesByPath('design/theme/theme_id');
-
+        if (count($usedThemes) < 1) {
+            return array(
+                'Non Cacheable Layouts',
+                $this->formatStatus('STATUS_UNKNOWN'),
+                'Unable to fetch themes from config',
+                'None'
+            );
+        }
         $usedThemePaths = [];
         foreach ($this->themeCollection as $theme) {
             if (in_array($theme->getId(), $usedThemes)) {
@@ -96,8 +107,8 @@ class NonCacheableLayoutsRow extends AbstractRow
             'Non Cacheable Layouts',
             count($badNonCacheAbleElements) > 0 ? $this->formatStatus('STATUS_PROBLEM')
                 : $this->formatStatus('STATUS_OK'),
-            implode("\n", array_unique($badNonCacheAbleElements)),
-            'none',
+            count($badNonCacheAbleElements) > 0 ? implode("\n", array_unique($badNonCacheAbleElements)) : 'None',
+            'None'
         );
     }
 }
