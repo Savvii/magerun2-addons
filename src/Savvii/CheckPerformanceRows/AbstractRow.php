@@ -85,13 +85,13 @@ abstract class AbstractRow
             foreach ($stores as $store) {
                 $configValue = $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store->getCode());
                 if ($configValue != $recommended) {
-                    $result[] = 'Store ' . $store->getId() . ' has value "' . $mapping[$configValue] . '"';
+                    $result[] = 'Store ' . $store->getId() . ' has value "' . (array_key_exists($configValue, $mapping) ? $mapping[$configValue] : '') . '"';
                 } else {
                     $allStoresFail = false;
                 }
             }
             if ($allStoresFail) {
-                $result = ['All stores have value "' . $mapping[$configValue] . '"'];
+                $result = ['All stores have value "' . (array_key_exists($configValue, $mapping) ? $mapping[$configValue] : '') . '"'];
             }
         } else {
             $result = ['Unable to initialize'];
