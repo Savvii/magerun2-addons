@@ -20,7 +20,6 @@ use Savvii\CheckPerformanceRows\VarnishHitrateRow;
 use Savvii\CheckPerformanceRows\MoveScriptRow;
 use Savvii\CheckPerformanceRows\PagespeedRows;
 use Savvii\CheckPerformanceRows\MySQLTableSizeRows;
-//use Savvii\CheckPerformanceRows\RocketLoaderRow;
 use Savvii\CheckPerformanceRows\MySQLConfigRow;
 use Savvii\CheckPerformanceRows\IndexerThreadsCountRow;
 use Symfony\Component\Console\Command\Command;
