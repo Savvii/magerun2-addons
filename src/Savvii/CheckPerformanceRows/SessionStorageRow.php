@@ -14,6 +14,11 @@ use Magento\Framework\Session\Config;
 class SessionStorageRow extends AbstractRow
 {
     /**
+     * @var DeploymentConfig
+     */
+    private DeploymentConfig $deploymentConfig;
+
+    /**
      * @param DeploymentConfig $deploymentConfig 
      * 
      * @return void 

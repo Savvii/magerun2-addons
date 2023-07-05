@@ -4,6 +4,7 @@ namespace Savvii\CheckPerformanceRows;
 
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -47,7 +48,10 @@ class HttpVersionRow extends AbstractRow
         }
 
         if (!$finalVersion) {
-            $frontUrl = $this->storeManager->getStore()->getBaseUrl();
+            $unsecureFrontUrl = $this->storeManager->getStore()->getBaseUrl();
+            $unsecureFrontUrlStatus = ( substr($unsecureFrontUrl,0,5) === 'http:' )?true:false;
+            $secureFrontUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB, true);
+            $frontUrl = $secureFrontUrl;
 
             try {
                 if (!defined('CURL_HTTP_VERSION_2_0')) {
@@ -105,6 +109,11 @@ class HttpVersionRow extends AbstractRow
 
             if (!$finalVersion) {
                 $status = $this->formatStatus('STATUS_UNKNOWN');
+            }
+
+            if ( $unsecureFrontUrlStatus ) {
+                $status = $this->formatStatus('STATUS_PROBLEM');
+                $finalVersion .= ' (Non https baseurl)';
             }
         }
 
