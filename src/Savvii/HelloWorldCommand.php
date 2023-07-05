@@ -2,9 +2,10 @@
 
 namespace Savvii;
 
-use N98\Magento\Command\AbstractMagentoCommand;
+use \N98\Magento\Command\AbstractMagentoCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Command\Command;
 
 class HelloWorldCommand extends AbstractMagentoCommand
 {
@@ -19,10 +20,10 @@ class HelloWorldCommand extends AbstractMagentoCommand
     {
         $this->detectMagento($output);
         if (!$this->initMagento()) {
-            return 0;
+            return Command::FAILURE;
         }
-
-        return $output->writeln('Hello World!');
+        $output->writeln('Hello World!');
+        return Command::SUCCESS;
     }
 
 }

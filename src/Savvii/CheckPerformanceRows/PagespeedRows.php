@@ -83,14 +83,39 @@ class PagespeedRows extends AbstractRow
             ->getSelect()->limit(1);
 
         $product = $this->productCollection->getFirstItem();
-        $pagesToCheck = array(
-            'Home' => $store->getBaseUrl(),
-            'Cart' => $store->getUrl('checkout/cart', ['_secure' => true]),
-            'Product'  => $product->getProductUrl(),
-            'Category' => $category->setStoreId($selectedStoreId)->getUrl()
-        );
 
         $result = array();
+        $pagesToCheck = [
+            'Home' => $store->getBaseUrl(),
+            'Cart' => $store->getUrl('checkout/cart', ['_secure' => true])
+        ];
+        /** Check if product has an ID */
+        if ($product->getId()) {
+            $productUrl = $product->getProductUrl();
+            /** Cache time 1 hour */
+            $productUrlQuery = parse_url($productUrl, PHP_URL_QUERY) ?? '';
+            $productUrl .= ((strlen($productUrlQuery) > 0) ?'&':'?') . 'cachetime=' . date("YmdH");
+            $pagesToCheck['Product'] = $productUrl;
+        } else {
+            array_push($result, array(
+                'Product',
+                $this->formatStatus('STATUS_UNKNOWN'),
+                'No products found',
+                ''
+            ));
+        }
+
+        if ($category->getId()) {
+            $pagesToCheck['Category'] = $category->setStoreId($selectedStoreId)->getUrl();
+        } else {
+            array_push($result, array(
+                'Category',
+                $this->formatStatus('STATUS_UNKNOWN'),
+                'No categories found',
+                ''
+            ));
+        }
+
         foreach ($pagesToCheck as $title => $url) {
             if (!getenv('PAGESPEED_URL') || !getenv('PAGESPEED_TOKEN')) {
                 array_push($result, array(
@@ -124,7 +149,6 @@ class PagespeedRows extends AbstractRow
             }
 
             $decodedOutput = json_decode($output, true);
-
             if (!array_key_exists('observedLoad', $decodedOutput)) {
                 array_push($result, array(
                     $title . ' (' . $url . ')',

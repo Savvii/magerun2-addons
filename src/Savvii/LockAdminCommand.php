@@ -5,6 +5,7 @@ namespace Savvii;
 use Magento\User\Model\ResourceModel\User as UserResourceModel;
 use Magento\User\Model\ResourceModel\User\CollectionFactory;
 use N98\Magento\Command\AbstractMagentoCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -53,6 +54,7 @@ class LockAdminCommand extends AbstractMagentoCommand
 
         file_put_contents($_SERVER['HOME'] . '/.locked_admin_users', implode(',', $lockedUsers));
 
-        return $output->writeln('<info>Admin is locked!</info>');
+        $output->writeln('<info>Admin is locked!</info>');
+        return Command::SUCCESS;
     }
 }

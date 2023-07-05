@@ -20,9 +20,10 @@ use Savvii\CheckPerformanceRows\VarnishHitrateRow;
 use Savvii\CheckPerformanceRows\MoveScriptRow;
 use Savvii\CheckPerformanceRows\PagespeedRows;
 use Savvii\CheckPerformanceRows\MySQLTableSizeRows;
-use Savvii\CheckPerformanceRows\RocketLoaderRow;
+//use Savvii\CheckPerformanceRows\RocketLoaderRow;
 use Savvii\CheckPerformanceRows\MySQLConfigRow;
 use Savvii\CheckPerformanceRows\IndexerThreadsCountRow;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -70,8 +71,6 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
 
     protected $pagespeedRows;
 
-    protected $rocketLoaderRow;
-
     protected $configCollection;
 
     protected $mySQLTableSizeRows;
@@ -118,7 +117,6 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         ConfigCollection $configCollection,
         PagespeedRows $pagespeedRows,
         MySQLTableSizeRows $mySQLTableSizeRows,
-        RocketLoaderRow $rocketLoaderRow,
         MySQLConfigRow $mySQLConfigRow,
         IndexerThreadsCountRow $indexerThreadsCountRow
     ) {
@@ -139,7 +137,6 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         $this->moveScriptRow = $moveScriptRow;
         $this->pagespeedRows = $pagespeedRows;
         $this->mySQLTableSizeRows = $mySQLTableSizeRows;
-        $this->rocketLoaderRow = $rocketLoaderRow;
         $this->mySQLConfigRow = $mySQLConfigRow;
         $this->indexerThreadsCountRow = $indexerThreadsCountRow;
     }
@@ -171,7 +168,7 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
     {
         $this->detectMagento($output);
         if (!$this->initMagento()) {
-            return 0;
+            return Command::SUCCESS;
         }
 
         $section = $output->section();
@@ -224,7 +221,6 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
         array_push($table, $this->moveScriptRow->setInputFormat($inputFormat)->getRow());
         $table = array_merge($table, $this->pagespeedRows->setInputFormat($inputFormat)->getRow());
         $table = array_merge($table, $this->mySQLTableSizeRows->setInputFormat($inputFormat)->getRow());
-        array_push($table, $this->rocketLoaderRow->setInputFormat($inputFormat)->getRow());
 
         if ($input->getOption('format') === null) {
             $section->overwrite(
@@ -236,9 +232,10 @@ class CheckPerformanceCommand extends AbstractMagentoCommand
             );
         }
 
-        return $this->getHelper('table')
+        $this->getHelper('table')
             ->setHeaders(array('optimization', 'status', 'current', 'recommended'))
             ->renderByFormat($output, $table, $input->getOption('format'));
+        return Command::SUCCESS;
     }
 
     /**
