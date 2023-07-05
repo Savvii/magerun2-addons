@@ -90,15 +90,14 @@ class PagespeedRows extends AbstractRow
             'Cart' => $store->getUrl('checkout/cart', ['_secure' => true])
         ];
         /** Check if product has an ID */
+        array_push($result, array(
+            'Product',
+            $this->formatStatus('STATUS_UNKNOWN'),
+            'No products found',
+            ''
+        ));
         if ($product->getId()) {
             $pagesToCheck['Product'] = $product->getProductUrl();
-        } else {
-            array_push($result, array(
-                'Product',
-                $this->formatStatus('STATUS_UNKNOWN'),
-                'No products found',
-                ''
-            ));
         }
 
         if ($category->getId()) {
