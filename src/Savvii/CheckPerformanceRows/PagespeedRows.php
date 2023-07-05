@@ -91,11 +91,7 @@ class PagespeedRows extends AbstractRow
         ];
         /** Check if product has an ID */
         if ($product->getId()) {
-            $productUrl = $product->getProductUrl();
-            /** Cache time 1 hour */
-            $productUrlQuery = parse_url($productUrl, PHP_URL_QUERY) ?? '';
-            $productUrl .= ((strlen($productUrlQuery) > 0) ?'&':'?') . 'cachetime=' . date("YmdH");
-            $pagesToCheck['Product'] = $productUrl;
+            $pagesToCheck['Product'] = $product->getProductUrl();
         } else {
             array_push($result, array(
                 'Product',
